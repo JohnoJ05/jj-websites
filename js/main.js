@@ -20,6 +20,55 @@
   window.matchMedia('(min-width: 900px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
   syncHeader();
 
+  const phone = window.matchMedia('(max-width: 699px)');
+
+  // Rails scroll sideways on phones; a thin bar shows how far along you are.
+  document.querySelectorAll('[data-rail]').forEach((rail) => {
+    const bar = document.createElement('div');
+    bar.className = 'rail-progress';
+    bar.setAttribute('aria-hidden', 'true');
+    const fill = bar.appendChild(document.createElement('span'));
+    rail.after(bar);
+    const sync = () => {
+      const shown = rail.clientWidth / rail.scrollWidth;
+      const max = rail.scrollWidth - rail.clientWidth;
+      fill.style.width = shown * 100 + '%';
+      fill.style.transform = `translateX(${max > 0 ? (rail.scrollLeft / max) * (1 / shown - 1) * 100 : 0}%)`;
+    };
+    rail.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    sync();
+  });
+
+  // Services collapse into an accordion on phones (first one open).
+  const plus = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>';
+  const accItems = [...document.querySelectorAll('[data-accordion] > article')];
+  const syncAccordions = () => {
+    accItems.forEach((item, i) => {
+      const h = item.querySelector('h2');
+      const btn = h.querySelector('.acc-btn');
+      if (phone.matches && !btn) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'acc-btn';
+        b.appendChild(document.createElement('span')).textContent = h.textContent;
+        b.insertAdjacentHTML('beforeend', plus);
+        h.replaceChildren(b);
+        const setOpen = (open) => {
+          item.classList.toggle('is-collapsed', !open);
+          b.setAttribute('aria-expanded', String(open));
+        };
+        setOpen(i === 0);
+        b.addEventListener('click', () => setOpen(item.classList.contains('is-collapsed')));
+      } else if (!phone.matches && btn) {
+        h.textContent = btn.textContent;
+        item.classList.remove('is-collapsed');
+      }
+    });
+  };
+  phone.addEventListener('change', syncAccordions);
+  syncAccordions();
+
   // Scroll reveal + floating hero mockup, skipped for reduced motion.
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduced && 'IntersectionObserver' in window) {
