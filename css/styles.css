@@ -526,12 +526,14 @@ textarea.input { min-height: 140px; padding-block: 12px; resize: vertical; }
   /* horizontal, swipeable rails */
   [data-rail] {
     display: grid; grid-auto-flow: column; grid-auto-columns: 84%; grid-template-columns: none;
-    gap: 16px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+    gap: 16px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+    touch-action: pan-x pan-y pinch-zoom;
     margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); scroll-padding-inline: var(--gutter);
     scrollbar-width: none;
   }
   [data-rail]::-webkit-scrollbar { display: none; }
   [data-rail] > * { scroll-snap-align: start; }
+  .js-reveal [data-rail] > [data-reveal].pending { transform: none; } /* fade only, so cards never shift vertically */
   .rail-progress { display: block; height: 2px; margin-top: 24px; background: var(--color-line); overflow: hidden; }
   .rail-progress span { display: block; height: 100%; background: var(--color-accent); }
   .work-card-name { font-size: 22px; }
