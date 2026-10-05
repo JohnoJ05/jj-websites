@@ -3,20 +3,27 @@
   const menuBtn = document.querySelector('.menu-btn');
   const menu = document.getElementById('mobile-menu');
 
+  const isOpen = () => menu.classList.contains('is-open');
+
   // Header goes solid once the page scrolls (or while the mobile menu is open).
-  const syncHeader = () => header.classList.toggle('is-solid', window.scrollY > 12 || !menu.hidden);
+  const syncHeader = () => header.classList.toggle('is-solid', window.scrollY > 12 || isOpen());
   window.addEventListener('scroll', syncHeader, { passive: true });
 
-  // Mobile menu
+  // Mobile menu: drops down under the header over a dimmed page.
+  const scrim = document.body.appendChild(document.createElement('div'));
+  scrim.className = 'menu-scrim';
   const setMenu = (open) => {
-    menu.hidden = !open;
+    menu.classList.toggle('is-open', open);
+    scrim.classList.toggle('is-open', open);
     menuBtn.setAttribute('aria-expanded', String(open));
     menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     document.body.classList.toggle('menu-open', open);
     syncHeader();
   };
-  menuBtn.addEventListener('click', () => setMenu(menu.hidden));
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
+  menuBtn.addEventListener('click', () => setMenu(!isOpen()));
+  scrim.addEventListener('click', () => setMenu(false));
+  menu.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen()) { setMenu(false); menuBtn.focus(); } });
   window.matchMedia('(min-width: 900px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
   syncHeader();
 

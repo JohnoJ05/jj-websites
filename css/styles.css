@@ -134,26 +134,50 @@ main { flex: 1; outline: none; }
 .menu-btn[aria-expanded="true"] .i-close { display: block; }
 
 .mobile-menu {
-  position: fixed; top: 70px; left: 0; right: 0; bottom: 0; background: var(--color-bg);
-  padding: 24px var(--gutter) 32px; display: flex; flex-direction: column; overflow-y: auto;
+  position: absolute; top: calc(100% + 2px); left: 0; right: 0;
+  max-height: calc(100dvh - 70px); overflow-y: auto; overscroll-behavior: contain;
+  padding: 8px var(--gutter) 24px; display: flex; flex-direction: column;
+  background: var(--color-bg); border-bottom: 2px solid var(--color-divider);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, .45);
+  visibility: hidden; clip-path: inset(0 0 100% 0);
+  transition: clip-path .4s var(--ease), visibility 0s linear .4s;
 }
-.mobile-menu[hidden] { display: none; }
-.mobile-links { display: flex; flex-direction: column; border-top: 2px solid var(--color-divider); }
+.mobile-menu.is-open { visibility: visible; clip-path: inset(0 0 -60px 0); transition: clip-path .4s var(--ease), visibility 0s; }
+.mobile-links { display: flex; flex-direction: column; }
 .mobile-links a {
-  display: flex; justify-content: space-between; align-items: center; padding: 18px 0;
+  display: flex; justify-content: space-between; align-items: center; padding: 14px 0;
   border-bottom: 1px solid var(--color-line); color: var(--color-text); text-decoration: none;
-  font-weight: 800; font-size: 34px; letter-spacing: -0.03em;
+  font-weight: 800; font-size: 28px; letter-spacing: -0.03em;
 }
 .mobile-links a[aria-current="page"] { color: var(--color-accent-300); }
 .mobile-links small { font-size: 13px; color: var(--color-muted); font-weight: 400; letter-spacing: .08em; }
-.mobile-menu .btn { margin-top: 28px; padding: 16px 18px; font-size: 16px; }
-.mobile-email { margin-top: auto; padding-top: 28px; color: var(--color-muted); font-size: 15px; text-decoration: none; }
+.mobile-menu .btn { margin-top: 20px; padding: 16px 18px; font-size: 16px; }
+.mobile-email { padding-top: 18px; color: var(--color-muted); font-size: 15px; text-decoration: none; }
+/* options drop in one after another */
+.mobile-menu > *, .mobile-links a { opacity: 0; transform: translateY(-10px); transition: opacity .25s ease, transform .35s var(--ease); }
+.mobile-menu.is-open > *, .mobile-menu.is-open .mobile-links a { opacity: 1; transform: none; }
+.mobile-menu > .mobile-links { opacity: 1; transform: none; }
+.mobile-menu.is-open .mobile-links a:nth-child(1) { transition-delay: .06s; }
+.mobile-menu.is-open .mobile-links a:nth-child(2) { transition-delay: .11s; }
+.mobile-menu.is-open .mobile-links a:nth-child(3) { transition-delay: .16s; }
+.mobile-menu.is-open > .btn { transition-delay: .21s; }
+.mobile-menu.is-open > .mobile-email { transition-delay: .26s; }
+.menu-scrim {
+  position: fixed; inset: 0; z-index: 40; background: rgba(2, 4, 8, .6);
+  opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s linear .3s;
+}
+.menu-scrim.is-open { opacity: 1; visibility: visible; transition: opacity .3s ease, visibility 0s; }
+.menu-btn svg { transition: transform .3s var(--ease); }
+.menu-btn[aria-expanded="true"] svg { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu, .mobile-menu.is-open, .mobile-menu > *, .mobile-links a, .menu-scrim, .menu-btn svg { transition: none !important; }
+}
 
 @media (max-width: 899px) {
   .nav-links, .nav-cta { display: none; }
   .menu-btn { display: grid; }
 }
-@media (min-width: 900px) { .mobile-menu { display: none !important; } }
+@media (min-width: 900px) { .mobile-menu, .menu-scrim { display: none !important; } }
 
 /* — image slots: swap the .slot span for an <img> when you have a screenshot — */
 .slot {
